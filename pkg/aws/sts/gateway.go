@@ -59,12 +59,10 @@ func newRegionalResolver(region string) (endpoints.Resolver, error) {
 		return &regionalResolver{endpoint}, nil
 	}
 
-	if _, exists := endpoints.PartitionForRegion(endpoints.DefaultPartitions(), region); !exists {
-		return nil, fmt.Errorf("Invalid region: %s", region)
-	}
-
 	if strings.HasPrefix(region, "cn-") {
-		host = fmt.Sprintf("sts.%s.amazonaws.com.cn", region)
+		host = fmt.Sprintf("sts.%s.c2s.ic.gov.cn", region)
+	} else if strings.Contains(region, "iso") {
+		host = fmt.Sprintf("sts.%s.c2s.ic.gov", region)
 	} else {
 		host = fmt.Sprintf("sts.%s.amazonaws.com", region)
 	}
