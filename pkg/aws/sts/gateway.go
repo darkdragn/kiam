@@ -19,6 +19,7 @@ import (
 	"net"
 	"strings"
 	"time"
+    "os"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
@@ -48,6 +49,7 @@ func (r *regionalResolver) EndpointFor(svc, region string, opts ...func(*endpoin
 func newRegionalResolver(region string) (endpoints.Resolver, error) {
 	var host string
 
+    endpoint, present := os.LookupEnv("AWS_API_BASE")
 	defaultResolver := endpoints.DefaultResolver()
 
 	// if it is a FIPS region, let the default resolver give us a result.
@@ -61,8 +63,8 @@ func newRegionalResolver(region string) (endpoints.Resolver, error) {
 
 	if strings.HasPrefix(region, "cn-") {
 		host = fmt.Sprintf("sts.%s.c2s.ic.gov.cn", region)
-	} else if strings.Contains(region, "iso") {
-		host = fmt.Sprintf("sts.%s.c2s.ic.gov", region)
+	} else if present {
+		host = fmt.Sprintf("sts.%s.%s", region, endpoint)
 	} else {
 		host = fmt.Sprintf("sts.%s.amazonaws.com", region)
 	}
